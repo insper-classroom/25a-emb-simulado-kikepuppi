@@ -24,9 +24,6 @@ const int ECHO_2 = 18;
 volatile uint32_t t0_2;
 volatile uint32_t tf_2;
 volatile int erro_2 = 0;
-
-volatile alarm_id_t alarm_1;
-volatile alarm_id_t alarm_2;
  
  void echo_callback(uint gpio, uint32_t events){
     // if (gpio_get(ECHO_1)) {
@@ -47,7 +44,6 @@ volatile alarm_id_t alarm_2;
         }
         else if (events & GPIO_IRQ_EDGE_FALL) {
             tf_1 = get_absolute_time();
-            cancel_alarm(alarm_1);
         }
     }
 
@@ -57,7 +53,6 @@ volatile alarm_id_t alarm_2;
         }
         else if (events & GPIO_IRQ_EDGE_FALL) {
             tf_2 = get_absolute_time();
-            cancel_alarm(alarm_2);
         }
     }
  }
@@ -105,8 +100,8 @@ volatile alarm_id_t alarm_2;
         gpio_put(TRIGGER_1, 0);
         gpio_put(TRIGGER_2, 0);
 
-        alarm_1 = add_alarm_in_ms(500, alarm_callback_1, NULL, false);
-        alarm_2 = add_alarm_in_ms(500, alarm_callback_2, NULL, false);
+        alarm_id_t alarm_1 = add_alarm_in_ms(500, alarm_callback_1, NULL, false);
+        alarm_id_t alarm_2 = add_alarm_in_ms(500, alarm_callback_2, NULL, false);
 
         while(tf_1 == 0 && erro_1 == 0 && tf_2 == 0 && erro_2 == 0){}
         
@@ -125,6 +120,9 @@ volatile alarm_id_t alarm_2;
             int distancia_2 = (int) (((tf_2 - t0_2) * 0.0343) / 2.0);
             printf("Sensor 2 - dist: %d cm\n", distancia_2);
         }
+
+        cancel_alarm(alarm_1);
+        cancel_alarm(alarm_2);
 
         erro_1 = 0;
         tf_1 = 0;
